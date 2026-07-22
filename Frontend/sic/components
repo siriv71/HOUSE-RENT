@@ -1,0 +1,127 @@
+import { Link, NavLink, useNavigate } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem,
+  DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Home, LogOut, User, LayoutDashboard, Building2, ShieldCheck, Menu } from "lucide-react";
+import { useState } from "react";
+
+const linkClass = ({ isActive }) =>
+  `text-sm font-medium tracking-wide transition-colors duration-200 ${
+    isActive ? "text-[#065A4A]" : "text-slate-700 hover:text-[#0B132B]"
+  }`;
+
+export default function Navbar() {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const [open, setOpen] = useState(false);
+
+  const initials = user?.name
+    ? user.name.split(" ").map((s) => s[0]).slice(0, 2).join("").toUpperCase()
+    : "U";
+
+  return (
+    <header className="sticky top-0 z-40 glass-nav" data-testid="site-navbar">
+      <div className="mx-auto max-w-7xl px-6 lg:px-10 py-4 flex items-center justify-between">
+        <Link to="/" className="flex items-center gap-2" data-testid="brand-logo">
+          <div className="h-9 w-9 rounded-md bg-[#0B132B] text-[#FDFBF7] grid place-items-center">
+            <Home className="h-4 w-4" />
+          </div>
+          <div className="leading-tight">
+            <div className="font-display text-xl tracking-tight">RentNest</div>
+            <div className="rn-label -mt-0.5">Curated Rentals</div>
+          </div>
+        </Link>
+
+        <nav className="hidden md:flex items-center gap-8">
+          <NavLink to="/" end className={linkClass} data-testid="nav-home">Home</NavLink>
+          <NavLink to="/properties" className={linkClass} data-testid="nav-properties">Properties</NavLink>
+          <NavLink to="/about" className={linkClass} data-testid="nav-about">About</NavLink>
+          <NavLink to="/contact" className={linkClass} data-testid="nav-contact">Contact</NavLink>
+        </nav>
+
+        <div className="hidden md:flex items-center gap-3">
+          {user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  data-testid="user-menu-trigger"
+                  className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 hover:border-slate-400 transition-colors"
+                >
+                  <div className="h-7 w-7 rounded-full bg-[#065A4A] text-white grid place-items-center text-xs font-semibold">
+                    {initials}
+                  </div>
+                  <span className="text-sm">{user.name?.split(" ")[0]}</span>
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56 bg-white">
+                <DropdownMenuLabel className="text-xs text-slate-500">Signed in as<br /><span className="text-slate-900 font-medium">{user.email}</span></DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigate("/dashboard")} data-testid="menu-dashboard">
+                  <LayoutDashboard className="h-4 w-4 mr-2" /> Dashboard
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/dashboard/profile")} data-testid="menu-profile">
+                  <User className="h-4 w-4 mr-2" /> Profile
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/dashboard/bookings")} data-testid="menu-bookings">
+                  <Building2 className="h-4 w-4 mr-2" /> My Bookings
+                </DropdownMenuItem>
+                {user.role === "admin" && (
+                  <DropdownMenuItem onClick={() => navigate("/admin")} data-testid="menu-admin">
+                    <ShieldCheck className="h-4 w-4 mr-2" /> Admin Panel
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={async () => { await logout(); navigate("/"); }} data-testid="menu-logout">
+                  <LogOut className="h-4 w-4 mr-2" /> Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <>
+              <Link to="/login">
+                <Button variant="ghost" data-testid="nav-login-btn">Log in</Button>
+              </Link>
+              <Link to="/register">
+                <Button className="rn-btn-primary" data-testid="nav-register-btn">Get Started</Button>
+              </Link>
+            </>
+          )}
+        </div>
+
+        <button
+          className="md:hidden p-2 rounded-md border border-slate-200"
+          onClick={() => setOpen(!open)}
+          data-testid="mobile-menu-toggle"
+        >
+          <Menu className="h-5 w-5" />
+        </button>
+      </div>
+
+      {open && (
+        <div className="md:hidden border-t border-slate-200 bg-white px-6 py-4 space-y-3">
+          <NavLink to="/" end className="block py-1" onClick={() => setOpen(false)}>Home</NavLink>
+          <NavLink to="/properties" className="block py-1" onClick={() => setOpen(false)}>Properties</NavLink>
+          <NavLink to="/about" className="block py-1" onClick={() => setOpen(false)}>About</NavLink>
+          <NavLink to="/contact" className="block py-1" onClick={() => setOpen(false)}>Contact</NavLink>
+          {user ? (
+            <>
+              <NavLink to="/dashboard" className="block py-1" onClick={() => setOpen(false)}>Dashboard</NavLink>
+              {user.role === "admin" && (
+                <NavLink to="/admin" className="block py-1" onClick={() => setOpen(false)}>Admin</NavLink>
+              )}
+              <button className="block py-1 text-red-600" onClick={async () => { await logout(); setOpen(false); navigate("/"); }}>Logout</button>
+            </>
+          ) : (
+            <div className="flex gap-2 pt-2">
+              <Link to="/login" onClick={() => setOpen(false)}><Button variant="outline" size="sm">Log in</Button></Link>
+              <Link to="/register" onClick={() => setOpen(false)}><Button size="sm" className="rn-btn-primary">Get Started</Button></Link>
+            </div>
+          )}
+        </div>
+      )}
+    </header>
+  );
+}
