@@ -1,0 +1,65 @@
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import api, { formatApiError } from "@/lib/api";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
+
+const statusColor = (s) => ({
+  approved: "bg-emerald-100 text-emerald-800 border-emerald-200",
+  pending: "bg-amber-100 text-amber-800 border-amber-200",
+  confirmed: "bg-emerald-100 text-emerald-800 border-emerald-200",
+  cancelled: "bg-red-100 text-red-800 border-red-200",
+  completed: "bg-slate-100 text-slate-800 border-slate-200",
+}[s] || "bg-slate-100 text-slate-700 border-slate-200");
+
+export default function MyBookings() {
+  const [items, setItems] = useState([]);
+  const load = () => api.get("/bookings", { params: { scope: "mine" } }).then(r => setItems(r.data.items));
+  useEffect(() => { load(); }, []);
+
+  const cancel = async (id) => {
+    try { await api.put(`/bookings/${id}`, { status: "cancelled" }); toast.success("Cancelled"); load(); }
+    catch (e) { toast.error(formatApiError(e)); }
+  };
+  const remove = async (id) => {
+    try { await api.delete(`/bookings/${id}`); toast.success("Removed"); load(); }
+    catch (e) { toast.error(formatApiError(e)); }
+  };
+
+  return (
+    <div className="mx-auto max-w-7xl px-6 lg:px-10 py-12 rn-fade-in">
+      <div className="rn-label">Bookings</div>
+      <h1 className="font-display text-4xl tracking-tighter mt-1 mb-8">My Bookings</h1>
+
+      {items.length === 0 ? (
+        <div className="bg-white border border-dashed border-slate-300 rounded-lg p-12 text-center">
+          <div className="font-display text-2xl">You haven't booked any home yet.</div>
+          <Link to="/properties"><Button className="mt-4 rn-btn-primary">Browse homes</Button></Link>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {items.map(b => (
+            <div key={b.id} className="bg-white border border-slate-200 rounded-lg overflow-hidden" data-testid={`booking-${b.id}`}>
+              <img src={b.property.image} alt="" className="h-40 w-full object-cover" />
+              <div className="p-5">
+                <Badge className={statusColor(b.status) + " border"}>{b.status}</Badge>
+                <div className="font-display text-xl mt-2">{b.property.title}</div>
+                <div className="text-sm text-slate-600">{b.property.city} · Move-in {b.bookingDate}</div>
+                <div className="mt-4 flex gap-2">
+                  <Link to={`/properties/${b.property.id}`} className="flex-1"><Button variant="outline" className="w-full">View home</Button></Link>
+                  {b.status !== "cancelled" && b.status !== "completed" && (
+                    <Button variant="outline" className="text-red-600" onClick={() => cancel(b.id)} data-testid={`cancel-${b.id}`}>Cancel</Button>
+                  )}
+                  {(b.status === "cancelled" || b.status === "completed") && (
+                    <Button variant="outline" className="text-red-600" onClick={() => remove(b.id)}>Remove</Button>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
