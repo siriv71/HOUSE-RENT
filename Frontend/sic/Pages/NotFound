@@ -1,0 +1,13 @@
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+
+export default function NotFound() {
+  return (
+    <div className="mx-auto max-w-3xl px-6 lg:px-10 py-24 text-center rn-fade-in" data-testid="not-found">
+      <div className="rn-label">404</div>
+      <h1 className="font-display text-6xl lg:text-8xl tracking-tighter mt-2">Off the map.</h1>
+      <p className="mt-4 text-slate-600 max-w-md mx-auto">The page you're looking for doesn't exist — but there are plenty of homes waiting.</p>
+      <Link to="/"><Button className="mt-8 rn-btn-primary">Back home</Button></Link>
+    </div>
+  );
+}
