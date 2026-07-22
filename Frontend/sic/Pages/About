@@ -1,0 +1,30 @@
+export default function About() {
+  return (
+    <div className="mx-auto max-w-5xl px-6 lg:px-10 py-16 rn-fade-in">
+      <div className="rn-label">About</div>
+      <h1 className="font-display text-5xl lg:text-6xl tracking-tighter mt-2">A quieter way to find home.</h1>
+      <p className="mt-6 text-lg text-slate-700 leading-relaxed max-w-3xl">
+        RentNest was built on a simple belief: the home you rent should feel like the home you'd buy.
+        We work with individual owners across the country to publish thoughtfully-photographed,
+        honestly-priced listings — with none of the noise you're used to.
+      </p>
+      <div className="mt-14 grid md:grid-cols-3 gap-8">
+        {[
+          { t: "Human-first", b: "Every listing has a real owner behind it — reachable in a tap." },
+          { t: "Design-first", b: "We highlight character over checklists. Interiors matter." },
+          { t: "Fair-first", b: "Transparent rent, zero brokerage — the numbers you see are the numbers you pay." },
+        ].map(({ t, b }) => (
+          <div key={t} className="border-t border-slate-300 pt-6">
+            <div className="font-display text-2xl">{t}</div>
+            <p className="mt-2 text-slate-600 leading-relaxed">{b}</p>
+          </div>
+        ))}
+      </div>
+      <img
+        src="https://images.pexels.com/photos/7031406/pexels-photo-7031406.jpeg?w=2000"
+        alt="Home exterior"
+        className="mt-16 w-full rounded-lg object-cover aspect-[16/8]"
+      />
+    </div>
+  );
+}
