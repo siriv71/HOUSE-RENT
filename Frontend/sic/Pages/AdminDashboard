@@ -1,0 +1,199 @@
+import { useEffect, useState } from "react";
+import api, { formatApiError } from "@/lib/api";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { toast } from "sonner";
+import { Users, Building2, CalendarDays, Clock } from "lucide-react";
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  LineChart, Line, AreaChart, Area
+} from "recharts";
+
+const statusColor = (s) => ({
+  approved: "bg-emerald-100 text-emerald-800 border-emerald-200",
+  pending: "bg-amber-100 text-amber-800 border-amber-200",
+  rejected: "bg-red-100 text-red-800 border-red-200",
+  confirmed: "bg-emerald-100 text-emerald-800 border-emerald-200",
+  cancelled: "bg-red-100 text-red-800 border-red-200",
+}[s] || "bg-slate-100 text-slate-700 border-slate-200");
+
+export default function AdminDashboard() {
+  const [data, setData] = useState(null);
+  const [users, setUsers] = useState([]);
+  const [props, setProps] = useState([]);
+  const [bookings, setBookings] = useState([]);
+
+  const load = () => {
+    api.get("/admin/dashboard").then(r => setData(r.data));
+    api.get("/admin/users").then(r => setUsers(r.data.items));
+    api.get("/admin/properties").then(r => setProps(r.data.items));
+    api.get("/admin/bookings").then(r => setBookings(r.data.items));
+  };
+  useEffect(() => { load(); }, []);
+
+  const doAction = async (fn, msg) => {
+    try { await fn(); toast.success(msg); load(); }
+    catch (e) { toast.error(formatApiError(e)); }
+  };
+
+  if (!data) return <div className="p-24 text-center">Loading...</div>;
+
+  const cards = [
+    { icon: Users, label: "Total Users", value: data.stats.totalUsers },
+    { icon: Building2, label: "Total Properties", value: data.stats.totalProperties },
+    { icon: CalendarDays, label: "Total Bookings", value: data.stats.totalBookings },
+    { icon: Clock, label: "Pending Listings", value: data.stats.pendingListings },
+  ];
+
+  return (
+    <div className="mx-auto max-w-7xl px-6 lg:px-10 py-12 rn-fade-in">
+      <div className="rn-label">Admin</div>
+      <h1 className="font-display text-4xl lg:text-5xl tracking-tighter mt-1">Control Room</h1>
+
+      <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
+        {cards.map(({ icon: Icon, label, value }) => (
+          <div key={label} className="bg-white border border-slate-200 rounded-lg p-6" data-testid={`admin-stat-${label.replace(/\s+/g, '-').toLowerCase()}`}>
+            <Icon className="h-5 w-5 text-[#065A4A]" />
+            <div className="font-display text-4xl mt-3">{value}</div>
+            <div className="rn-label">{label}</div>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="bg-white border border-slate-200 rounded-lg p-6">
+          <div className="rn-label">Monthly Listings</div>
+          <div className="h-56 mt-3">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={data.monthlyListings}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                <XAxis dataKey="month" stroke="#64748b" fontSize={11} />
+                <YAxis stroke="#64748b" fontSize={11} />
+                <Tooltip contentStyle={{ background: "white", border: "1px solid #e2e8f0" }} />
+                <Bar dataKey="value" fill="#065A4A" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+        <div className="bg-white border border-slate-200 rounded-lg p-6">
+          <div className="rn-label">Monthly Bookings</div>
+          <div className="h-56 mt-3">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={data.monthlyBookings}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                <XAxis dataKey="month" stroke="#64748b" fontSize={11} />
+                <YAxis stroke="#64748b" fontSize={11} />
+                <Tooltip contentStyle={{ background: "white", border: "1px solid #e2e8f0" }} />
+                <Line type="monotone" dataKey="value" stroke="#0B132B" strokeWidth={2} dot={{ r: 3 }} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+        <div className="bg-white border border-slate-200 rounded-lg p-6">
+          <div className="rn-label">Revenue (₹)</div>
+          <div className="h-56 mt-3">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={data.monthlyRevenue}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                <XAxis dataKey="month" stroke="#64748b" fontSize={11} />
+                <YAxis stroke="#64748b" fontSize={11} />
+                <Tooltip contentStyle={{ background: "white", border: "1px solid #e2e8f0" }} />
+                <Area type="monotone" dataKey="value" stroke="#065A4A" fill="#065A4A" fillOpacity={0.15} />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
+
+      <Tabs defaultValue="listings" className="mt-10">
+        <TabsList>
+          <TabsTrigger value="listings" data-testid="admin-tab-listings">Listings</TabsTrigger>
+          <TabsTrigger value="users" data-testid="admin-tab-users">Users</TabsTrigger>
+          <TabsTrigger value="bookings" data-testid="admin-tab-bookings">Bookings</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="listings" className="mt-6">
+          <div className="bg-white border border-slate-200 rounded-lg overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-slate-50 text-left">
+                <tr><th className="p-3">Property</th><th className="p-3">Owner</th><th className="p-3">Rent</th><th className="p-3">Status</th><th className="p-3">Actions</th></tr>
+              </thead>
+              <tbody>
+                {props.map(p => (
+                  <tr key={p.id} className="border-t border-slate-100">
+                    <td className="p-3">{p.title}<br /><span className="text-xs text-slate-500">{p.city}</span></td>
+                    <td className="p-3">{p.owner?.name}</td>
+                    <td className="p-3">₹{p.price}/mo</td>
+                    <td className="p-3"><Badge className={statusColor(p.approvalStatus) + " border"}>{p.approvalStatus}</Badge></td>
+                    <td className="p-3 space-x-2 whitespace-nowrap">
+                      {p.approvalStatus !== "approved" && (
+                        <Button size="sm" className="rn-btn-emerald" onClick={() => doAction(() => api.put(`/admin/property/approve/${p.id}`), "Approved")} data-testid={`approve-${p.id}`}>Approve</Button>
+                      )}
+                      {p.approvalStatus !== "rejected" && (
+                        <Button size="sm" variant="outline" onClick={() => doAction(() => api.put(`/admin/property/reject/${p.id}`), "Rejected")}>Reject</Button>
+                      )}
+                      <Button size="sm" variant="outline" className="text-red-600" onClick={() => doAction(() => api.delete(`/admin/property/${p.id}`), "Deleted")}>Delete</Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="users" className="mt-6">
+          <div className="bg-white border border-slate-200 rounded-lg overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-slate-50 text-left">
+                <tr><th className="p-3">Name</th><th className="p-3">Email</th><th className="p-3">Role</th><th className="p-3">Status</th><th className="p-3">Actions</th></tr>
+              </thead>
+              <tbody>
+                {users.map(u => (
+                  <tr key={u.id} className="border-t border-slate-100">
+                    <td className="p-3">{u.name}</td>
+                    <td className="p-3">{u.email}</td>
+                    <td className="p-3"><Badge variant="outline">{u.role}</Badge></td>
+                    <td className="p-3">{u.blocked ? <Badge className="bg-red-100 text-red-800 border-red-200 border">Blocked</Badge> : <Badge className="bg-emerald-100 text-emerald-800 border-emerald-200 border">Active</Badge>}</td>
+                    <td className="p-3 space-x-2 whitespace-nowrap">
+                      {u.role !== "admin" && (
+                        <>
+                          <Button size="sm" variant="outline" onClick={() => doAction(() => api.put(`/admin/users/${u.id}/block`), u.blocked ? "Unblocked" : "Blocked")} data-testid={`block-${u.id}`}>{u.blocked ? "Unblock" : "Block"}</Button>
+                          <Button size="sm" variant="outline" className="text-red-600" onClick={() => doAction(() => api.delete(`/admin/users/${u.id}`), "Deleted")}>Delete</Button>
+                        </>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="bookings" className="mt-6">
+          <div className="bg-white border border-slate-200 rounded-lg overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-slate-50 text-left">
+                <tr><th className="p-3">Property</th><th className="p-3">User</th><th className="p-3">Date</th><th className="p-3">Status</th><th className="p-3">Action</th></tr>
+              </thead>
+              <tbody>
+                {bookings.map(b => (
+                  <tr key={b.id} className="border-t border-slate-100">
+                    <td className="p-3">{b.property.title}</td>
+                    <td className="p-3">{b.user.name}<br /><span className="text-xs text-slate-500">{b.user.email}</span></td>
+                    <td className="p-3">{b.bookingDate}</td>
+                    <td className="p-3"><Badge className={statusColor(b.status) + " border"}>{b.status}</Badge></td>
+                    <td className="p-3 space-x-2 whitespace-nowrap">
+                      {b.status !== "confirmed" && <Button size="sm" className="rn-btn-emerald" onClick={() => doAction(() => api.put(`/bookings/${b.id}`, { status: "confirmed" }), "Confirmed")}>Confirm</Button>}
+                      {b.status !== "cancelled" && <Button size="sm" variant="outline" onClick={() => doAction(() => api.put(`/bookings/${b.id}`, { status: "cancelled" }), "Cancelled")}>Cancel</Button>}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+}
