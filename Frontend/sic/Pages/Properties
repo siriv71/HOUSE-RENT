@@ -1,0 +1,176 @@
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import api from "@/lib/api";
+import PropertyCard from "@/components/PropertyCard";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { LayoutGrid, List, SlidersHorizontal } from "lucide-react";
+
+export default function Properties() {
+  const [params, setParams] = useSearchParams();
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [view, setView] = useState("grid");
+  const [filters, setFilters] = useState({
+    location: params.get("location") || "",
+    propertyType: params.get("propertyType") || "all",
+    minPrice: params.get("minPrice") || "",
+    maxPrice: params.get("maxPrice") || "",
+    bedrooms: params.get("bedrooms") || "",
+    furnishing: params.get("furnishing") || "all",
+    availability: params.get("availability") === "true",
+  });
+
+  const fetchData = async (f) => {
+    setLoading(true);
+    const q = {};
+    if (f.location) q.location = f.location;
+    if (f.propertyType && f.propertyType !== "all") q.propertyType = f.propertyType;
+    if (f.minPrice) q.minPrice = Number(f.minPrice);
+    if (f.maxPrice) q.maxPrice = Number(f.maxPrice);
+    if (f.bedrooms) q.bedrooms = Number(f.bedrooms);
+    if (f.furnishing && f.furnishing !== "all") q.furnishing = f.furnishing;
+    if (f.availability) q.availability = true;
+    try {
+      const r = await api.get("/properties", { params: q });
+      setItems(r.data.items);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { fetchData(filters); /* eslint-disable-next-line */ }, []);
+
+  const apply = (e) => {
+    e?.preventDefault();
+    const url = new URLSearchParams();
+    Object.entries(filters).forEach(([k, v]) => {
+      if (v && v !== "all" && v !== false) url.set(k, v);
+    });
+    setParams(url);
+    fetchData(filters);
+  };
+
+  const reset = () => {
+    const f = { location: "", propertyType: "all", minPrice: "", maxPrice: "", bedrooms: "", furnishing: "all", availability: false };
+    setFilters(f);
+    setParams({});
+    fetchData(f);
+  };
+
+  return (
+    <div className="mx-auto max-w-7xl px-6 lg:px-10 py-12 rn-fade-in">
+      <div className="mb-8">
+        <div className="rn-label">Marketplace</div>
+        <h1 className="font-display text-4xl lg:text-6xl tracking-tighter mt-1">All properties</h1>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-8">
+        <aside className="bg-white border border-slate-200 rounded-lg p-6 h-fit lg:sticky lg:top-24" data-testid="filters-sidebar">
+          <div className="flex items-center gap-2 mb-6">
+            <SlidersHorizontal className="h-4 w-4" />
+            <span className="font-display text-xl">Filters</span>
+          </div>
+          <form onSubmit={apply} className="space-y-5">
+            <div>
+              <Label>Location</Label>
+              <Input data-testid="filter-location" value={filters.location} onChange={(e) => setFilters({ ...filters, location: e.target.value })}
+                placeholder="City or area" className="mt-1" />
+            </div>
+            <div>
+              <Label>Property Type</Label>
+              <Select value={filters.propertyType} onValueChange={(v) => setFilters({ ...filters, propertyType: v })}>
+                <SelectTrigger data-testid="filter-type" className="mt-1"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Any</SelectItem>
+                  <SelectItem value="Apartment">Apartment</SelectItem>
+                  <SelectItem value="Villa">Villa</SelectItem>
+                  <SelectItem value="House">House</SelectItem>
+                  <SelectItem value="Studio">Studio</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label>Min ₹</Label>
+                <Input data-testid="filter-min-price" type="number" value={filters.minPrice} onChange={(e) => setFilters({ ...filters, minPrice: e.target.value })} className="mt-1" />
+              </div>
+              <div>
+                <Label>Max ₹</Label>
+                <Input data-testid="filter-max-price" type="number" value={filters.maxPrice} onChange={(e) => setFilters({ ...filters, maxPrice: e.target.value })} className="mt-1" />
+              </div>
+            </div>
+            <div>
+              <Label>Bedrooms (min)</Label>
+              <Select value={filters.bedrooms || "any"} onValueChange={(v) => setFilters({ ...filters, bedrooms: v === "any" ? "" : v })}>
+                <SelectTrigger data-testid="filter-bedrooms" className="mt-1"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="any">Any</SelectItem>
+                  <SelectItem value="1">1+</SelectItem>
+                  <SelectItem value="2">2+</SelectItem>
+                  <SelectItem value="3">3+</SelectItem>
+                  <SelectItem value="4">4+</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Furnishing</Label>
+              <Select value={filters.furnishing} onValueChange={(v) => setFilters({ ...filters, furnishing: v })}>
+                <SelectTrigger data-testid="filter-furnishing" className="mt-1"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Any</SelectItem>
+                  <SelectItem value="Furnished">Furnished</SelectItem>
+                  <SelectItem value="Semi-Furnished">Semi-Furnished</SelectItem>
+                  <SelectItem value="Unfurnished">Unfurnished</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <label className="flex items-center gap-2 text-sm">
+              <Checkbox checked={filters.availability} onCheckedChange={(v) => setFilters({ ...filters, availability: !!v })} data-testid="filter-availability" />
+              Available only
+            </label>
+            <div className="flex gap-2">
+              <Button type="submit" className="rn-btn-primary flex-1" data-testid="apply-filters-btn">Apply</Button>
+              <Button type="button" variant="outline" onClick={reset} data-testid="reset-filters-btn">Reset</Button>
+            </div>
+          </form>
+        </aside>
+
+        <section>
+          <div className="flex items-center justify-between mb-6">
+            <div className="text-sm text-slate-600" data-testid="properties-count">
+              {loading ? "Loading..." : `${items.length} homes found`}
+            </div>
+            <div className="flex items-center border border-slate-200 bg-white rounded-md overflow-hidden">
+              <button className={`p-2 ${view === "grid" ? "bg-slate-900 text-white" : ""}`} onClick={() => setView("grid")} data-testid="view-grid-btn"><LayoutGrid className="h-4 w-4" /></button>
+              <button className={`p-2 ${view === "list" ? "bg-slate-900 text-white" : ""}`} onClick={() => setView("list")} data-testid="view-list-btn"><List className="h-4 w-4" /></button>
+            </div>
+          </div>
+
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+              {[...Array(6)].map((_, i) => <div key={i} className="aspect-[4/3] bg-white border border-slate-200 rounded-lg animate-pulse" />)}
+            </div>
+          ) : items.length === 0 ? (
+            <div className="text-center py-24 bg-white border border-dashed border-slate-300 rounded-lg" data-testid="no-properties">
+              <div className="font-display text-2xl">No properties match your filters</div>
+              <p className="text-slate-500 mt-2">Try loosening your search criteria.</p>
+              <Button className="mt-6" variant="outline" onClick={reset}>Clear filters</Button>
+            </div>
+          ) : (
+            <div className={view === "grid" ? "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6" : "space-y-6"}>
+              {items.map((p, i) => (
+                <div key={p.id} className="rn-fade-up" style={{ animationDelay: `${i * 60}ms` }}>
+                  <PropertyCard property={p} view={view} />
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+      </div>
+    </div>
+  );
+}
