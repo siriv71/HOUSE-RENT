@@ -1,0 +1,47 @@
+import { Link } from "react-router-dom";
+import { Home, Instagram, Twitter, Linkedin } from "lucide-react";
+
+export default function Footer() {
+  return (
+    <footer className="mt-24 border-t border-slate-200 bg-white" data-testid="site-footer">
+      <div className="mx-auto max-w-7xl px-6 lg:px-10 py-16 grid grid-cols-1 md:grid-cols-4 gap-12">
+        <div className="md:col-span-2">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="h-9 w-9 rounded-md bg-[#0B132B] text-[#FDFBF7] grid place-items-center">
+              <Home className="h-4 w-4" />
+            </div>
+            <span className="font-display text-2xl">RentNest</span>
+          </div>
+          <p className="text-slate-600 max-w-md leading-relaxed">
+            A refined marketplace for renting distinctive homes. From studios to villas, discover
+            spaces that match the way you live.
+          </p>
+          <div className="flex gap-3 mt-6">
+            <a href="#" className="h-9 w-9 grid place-items-center rounded-full border border-slate-200 hover:border-slate-400 transition-colors"><Instagram className="h-4 w-4" /></a>
+            <a href="#" className="h-9 w-9 grid place-items-center rounded-full border border-slate-200 hover:border-slate-400 transition-colors"><Twitter className="h-4 w-4" /></a>
+            <a href="#" className="h-9 w-9 grid place-items-center rounded-full border border-slate-200 hover:border-slate-400 transition-colors"><Linkedin className="h-4 w-4" /></a>
+          </div>
+        </div>
+        <div>
+          <div className="rn-label mb-4">Explore</div>
+          <ul className="space-y-2 text-sm">
+            <li><Link to="/properties" className="hover:text-[#065A4A]">Properties</Link></li>
+            <li><Link to="/about" className="hover:text-[#065A4A]">About</Link></li>
+            <li><Link to="/contact" className="hover:text-[#065A4A]">Contact</Link></li>
+          </ul>
+        </div>
+        <div>
+          <div className="rn-label mb-4">Account</div>
+          <ul className="space-y-2 text-sm">
+            <li><Link to="/login" className="hover:text-[#065A4A]">Log in</Link></li>
+            <li><Link to="/register" className="hover:text-[#065A4A]">Create Account</Link></li>
+            <li><Link to="/dashboard" className="hover:text-[#065A4A]">Dashboard</Link></li>
+          </ul>
+        </div>
+      </div>
+      <div className="border-t border-slate-200 py-6 text-center text-xs text-slate-500">
+        © {new Date().getFullYear()} RentNest. Crafted with care.
+      </div>
+    </footer>
+  );
+}
