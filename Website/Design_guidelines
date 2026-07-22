@@ -1,156 +1,152 @@
-
-Action: view_file({"path":"/app/design_guidelines.json"})
-Observation: [Showing lines 1-152 of 152 total] /app/design_guidelines.json:
-1|{
-2|  "theme_and_emotion": {
-3|    "archetype": "ARCHETYPE 5: LUXURY (Premium, Depth, Mystery) infused with ORGANIC & EARTHY",
-4|    "emotion": "Architectural Precision mixed with Warm Hospitality",
-5|    "description": "The House Rent Management System should feel like a high-end architectural digest rather than a generic SaaS tool. It bridges the gap between premium real estate marketing and hyper-functional property management dashboards. Tension is created by pairing heavy, classic serif fonts with sterile, modern functional UI components."
-6|  },
-7|  "typography": {
-8|    "font_imports": "@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800&display=swap');",
-9|    "headings": {
-10|      "font_family": "'Playfair Display', serif",
-11|      "strategy": "Expressive, tight tracking (tracking-tight), luxurious scale. Use for Marketing hero, Property Titles, and prominent section headers.",
-12|      "sizes": {
-13|        "h1": "text-4xl sm:text-5xl lg:text-6xl tracking-tighter leading-none",
-14|        "h2": "text-2xl sm:text-3xl lg:text-4xl tracking-tight leading-tight",
-15|        "h3": "text-xl sm:text-2xl tracking-tight"
-16|      }
-17|    },
-18|    "body_and_ui": {
-19|      "font_family": "'Manrope', sans-serif",
-20|      "strategy": "Sterile, highly legible, geometric. Used for dashboards, forms, property metadata, and generic UI copy.",
-21|      "sizes": {
-22|        "body": "text-base leading-relaxed text-slate-700",
-23|        "labels": "text-xs font-semibold uppercase tracking-[0.15em] text-slate-500",
-24|        "ui_small": "text-sm text-slate-600"
-25|      }
-26|    },
-27|    "forbidden_fonts": ["Inter", "Roboto", "Open Sans", "Space Grotesk"]
-28|  },
-29|  "colors": {
-30|    "strategy": "High contrast, rich tones. Never use pure black or pure white. Tint neutrals.",
-31|    "palette": {
-32|      "background": "#FDFBF7",
-33|      "surface": "#FFFFFF",
-34|      "primary": "#0B132B",
-35|      "primary_hover": "#162447",
-36|      "accent_emerald": "#065A4A",
-37|      "accent_emerald_hover": "#044236",
-38|      "text_main": "#0B132B",
-39|      "text_muted": "#475569",
-40|      "border": "#E2E8F0"
-41|    },
-42|    "dashboard_specific": {
-43|      "metric_positive": "#065A4A",
-44|      "metric_negative": "#B91C1C",
-45|      "metric_warning": "#D97706"
-46|    },
-47|    "forbidden_colors": ["#7351B7", "#1B93A4"]
-48|  },
-49|  "spacing_and_layout": {
-50|    "spacing_scale": "Generous. Use 2-3x typical spacing. p-6, p-8, p-12, p-16, p-24.",
-51|    "marketing_layout": "Mode A: Tetris Grid. Asymmetrical grid logic. col-span-full md:col-span-8 row-span-2 for hero elements. Wide gaps (gap-8 to gap-12).",
-52|    "dashboard_layout": "Mode B: High Density Grid. Tight gaps (gap-4 or gap-6). Cards should be flat, no drop-shadows by default, 1px border-slate-200.",
-53|    "alignment": "Optical alignment over geometrical. Left-align dense content. Do not center everything."
-54|  },
-55|  "surface_strategies": {
-56|    "header_nav": "Crystal Glassmorphism. backdrop-blur-xl bg-white/70. 1px delicate inner stroke (border-white/40). Do not use fully transparent headers over hero sections.",
-57|    "hero_overlay": "Max overlay opacity bg-black/40. If contrast is needed, use a gradient bg-gradient-to-t from-black/60 to-transparent. Let the property image breathe.",
-58|    "property_cards": "Flat background, 1px subtle border (border-border), no shadow. On hover: slight lift (-translate-y-1) and shadow-lg.",
-59|    "dashboard_panels": "Sharp edges or max 8px border-radius (rounded-lg). Avoid heavy card looks; use border-collapse styles or subtle separators."
-60|  },
-61|  "component_usage_rules": {
-62|    "base": "Use Shadcn/UI for all interactive logic (Forms, Dialogs, Selects, Dropdowns) customized with Tailwind to match the luxury aesthetic.",
-63|    "forms": "Never use native <input> or <select>. Use Shadcn Input, Select, Checkbox.",
-64|    "charts": "Use Recharts or Shadcn Charts. Minimalist tooltips, remove excessive grid lines.",
-65|    "tables": "Shadcn Table. Flat design, hover states on rows. No alternating row colors, use subtle bottom borders instead.",
-66|    "icons": "Use lucide-react (already installed).",
-67|    "toasts": "Use sonner. Render toaster at the root level.",
-68|    "dropdowns": "No transparent backgrounds. Must have a solid bg-white or bg-slate-900 with clear borders.",
-69|    "files_extension": "All React components must be .jsx. Avoid .tsx extensions."
-70|  },
-71|  "motion_and_interactions": {
-72|    "hover_states": "All buttons/links must have explicit hover colors (e.g., hover:bg-slate-900 hover:text-white). Do not rely on inheritance.",
-73|    "transitions": "Use specific properties (transition-transform duration-300 ease-out). Never use 'transition-all'.",
-74|    "animations": "Subtle fade-in and slide-up for property cards. Staggered entrances for dashboard lists."
-75|  },
-76|  "image_urls": {
-77|    "hero_and_featured_properties": [
-78|      {
-79|        "url": "https://images.unsplash.com/photo-1613490493576-7fde63acd811?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2OTV8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjBsdXh1cnklMjBob3VzZSUyMGV4dGVyaW9yfGVufDB8fHx8MTc4NDcwMzcyM3ww&ixlib=rb-4.1.0&q=85",
-80|        "description": "White and brown concrete modern house exterior",
-81|        "category": "Hero Background / Featured Property"
-82|      },
-83|      {
-84|        "url": "https://images.pexels.com/photos/7031406/pexels-photo-7031406.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-85|        "description": "Luxurious cottage house exterior in evening light",
-86|        "category": "Featured Property"
-87|      },
-88|      {
-89|        "url": "https://images.unsplash.com/photo-1706808849780-7a04fbac83ef?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2OTV8MHwxfHNlYXJjaHwyfHxtb2Rlcm4lMjBsdXh1cnklMjBob3VzZSUyMGV4dGVyaW9yfGVufDB8fHx8MTc4NDcwMzcyM3ww&ixlib=rb-4.1.0&q=85",
-90|        "description": "Modern house with a pool",
-91|        "category": "Property Detail Gallery"
-92|      }
-93|    ],
-94|    "interiors": [
-95|      {
-96|        "url": "https://images.pexels.com/photos/6585598/pexels-photo-6585598.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-97|        "description": "Interior of modern living room with big sofa",
-98|        "category": "Property Detail Gallery"
-99|      },
-100|      {
-101|        "url": "https://images.pexels.com/photos/7587828/pexels-photo-7587828.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-102|        "description": "Modern living room featuring brick walls and teal sofa",
-103|        "category": "Property Detail Gallery"
-104|      },
-105|      {
-106|        "url": "https://images.unsplash.com/photo-1688646953306-5ec93eab8c06?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NjZ8MHwxfHNlYXJjaHw0fHxtb2Rlcm4lMjBhcGFydG1lbnQlMjBpbnRlcmlvciUyMGxpdmluZyUyMHJvb218ZW58MHx8fHwxNzg0NzAzNzIzfDA&ixlib=rb-4.1.0&q=85",
-107|        "description": "Living room filled with furniture and a large window",
-108|        "category": "Property Detail Gallery"
-109|      }
-110|    ],
-111|    "testimonials_and_users": [
-112|      {
-113|        "url": "https://images.pexels.com/photos/7562179/pexels-photo-7562179.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-114|        "description": "Happy African American man smiling",
-115|        "category": "Testimonials / Owner Profile"
-116|      },
-117|      {
-118|        "url": "https://images.unsplash.com/photo-1562337404-3044c84ac061?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1ODR8MHwxfHNlYXJjaHwzfHxoYXBweSUyMHBlcnNvbiUyMHBvcnRyYWl0fGVufDB8fHx8MTc4NDcwMzcyM3ww&ixlib=rb-4.1.0&q=85",
-119|        "description": "Smiling woman portrait",
-120|        "category": "Testimonials / User Dashboard Avatar"
-121|      }
-122|    ]
-123|  },
-124|  "testing_attributes": {
-125|    "rule": "All interactive and key informational elements MUST include a data-testid attribute.",
-126|    "convention": "kebab-case, role-based",
-127|    "examples": ["data-testid='login-submit-btn'", "data-testid='property-card-book-btn'", "data-testid='filter-location-select'"]
-128|  },
-129|  "instructions_to_main_agent": [
-130|    "Prioritize using pre-existing components from /src/components/ui/ (alert, button, card, dialog, input, etc.). All components are in .jsx.",
-131|    "Create pages as .jsx components. Do not use TypeScript (.tsx).",
-132|    "The application acts as both a high-end marketing site and a data-dense property management dashboard. Apply wide, asymmetrical layouts for the marketing pages and tight bento grids for the dashboard views.",
-133|    "Ensure the hero section overlay is subtle (bg-black/30 or gradient) so the background property image remains clearly visible.",
-134|    "Do NOT use pure #000000. Use Tailwind's slate-900 or the defined primary color #0B132B.",
-135|    "Integrate lucide-react for all iconography.",
-136|    "Do not use generic Bootstrap layouts. Rely heavily on Tailwind CSS for grid-cols and responsive behaviors.",
-137|    "Apply Playfair Display font to all major headings and Manrope to all UI data, labels, and forms. Import these via index.css.",
-138|    "Ensure contrast requirements are met (APCA/WCAG AA). Avoid gray text on gray backgrounds.",
-139|    "Add transition effects to property cards, buttons, and dialogs. Use explicit transform scales and opacity changes instead of 'all'."
-140|  ],
-141|  "universal_guidelines_for_main_agent": [
-142|    "You tend to converge toward generic, 'on distribution' outputs. Avoid this: make creative, distinctive frontends that surprise and delight.",
-143|    "Don't make generic centered layouts, simplistic gradients, and uniform styling.",
-144|    "Create depth through layered design elements with z-index hierarchy and glassmorphism.",
-145|    "You MUST NOT apply universal transition. Eg: transition: all. Always add transitions for specific interactive elements excluding transforms.",
-146|    "You MUST NOT center align the app container, ie do not add .App { text-align: center; }.",
-147|    "NEVER use AI assistant Emoji characters like 🤖🧠💭💡🔮🎯 etc for icons.",
-148|    "Use 2-3x more spacing than feels comfortable. Cramped designs look cheap.",
-149|    "NEVER use placeholder URLs. Always use the provided image URLs.",
-150|    "Use sonner for toast notifications."
-151|  ]
-152|}
-[End of file]
+{
+  "theme_and_emotion": {
+    "archetype": "ARCHETYPE 5: LUXURY (Premium, Depth, Mystery) infused with ORGANIC & EARTHY",
+    "emotion": "Architectural Precision mixed with Warm Hospitality",
+    "description": "The House Rent Management System should feel like a high-end architectural digest rather than a generic SaaS tool. It bridges the gap between premium real estate marketing and hyper-functional property management dashboards. Tension is created by pairing heavy, classic serif fonts with sterile, modern functional UI components."
+  },
+  "typography": {
+    "font_imports": "@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800&display=swap');",
+    "headings": {
+      "font_family": "'Playfair Display', serif",
+      "strategy": "Expressive, tight tracking (tracking-tight), luxurious scale. Use for Marketing hero, Property Titles, and prominent section headers.",
+      "sizes": {
+        "h1": "text-4xl sm:text-5xl lg:text-6xl tracking-tighter leading-none",
+        "h2": "text-2xl sm:text-3xl lg:text-4xl tracking-tight leading-tight",
+        "h3": "text-xl sm:text-2xl tracking-tight"
+      }
+    },
+    "body_and_ui": {
+      "font_family": "'Manrope', sans-serif",
+      "strategy": "Sterile, highly legible, geometric. Used for dashboards, forms, property metadata, and generic UI copy.",
+      "sizes": {
+        "body": "text-base leading-relaxed text-slate-700",
+        "labels": "text-xs font-semibold uppercase tracking-[0.15em] text-slate-500",
+        "ui_small": "text-sm text-slate-600"
+      }
+    },
+    "forbidden_fonts": ["Inter", "Roboto", "Open Sans", "Space Grotesk"]
+  },
+  "colors": {
+    "strategy": "High contrast, rich tones. Never use pure black or pure white. Tint neutrals.",
+    "palette": {
+      "background": "#FDFBF7",
+      "surface": "#FFFFFF",
+      "primary": "#0B132B",
+      "primary_hover": "#162447",
+      "accent_emerald": "#065A4A",
+      "accent_emerald_hover": "#044236",
+      "text_main": "#0B132B",
+      "text_muted": "#475569",
+      "border": "#E2E8F0"
+    },
+    "dashboard_specific": {
+      "metric_positive": "#065A4A",
+      "metric_negative": "#B91C1C",
+      "metric_warning": "#D97706"
+    },
+    "forbidden_colors": ["#7351B7", "#1B93A4"]
+  },
+  "spacing_and_layout": {
+    "spacing_scale": "Generous. Use 2-3x typical spacing. p-6, p-8, p-12, p-16, p-24.",
+    "marketing_layout": "Mode A: Tetris Grid. Asymmetrical grid logic. col-span-full md:col-span-8 row-span-2 for hero elements. Wide gaps (gap-8 to gap-12).",
+    "dashboard_layout": "Mode B: High Density Grid. Tight gaps (gap-4 or gap-6). Cards should be flat, no drop-shadows by default, 1px border-slate-200.",
+    "alignment": "Optical alignment over geometrical. Left-align dense content. Do not center everything."
+  },
+  "surface_strategies": {
+    "header_nav": "Crystal Glassmorphism. backdrop-blur-xl bg-white/70. 1px delicate inner stroke (border-white/40). Do not use fully transparent headers over hero sections.",
+    "hero_overlay": "Max overlay opacity bg-black/40. If contrast is needed, use a gradient bg-gradient-to-t from-black/60 to-transparent. Let the property image breathe.",
+    "property_cards": "Flat background, 1px subtle border (border-border), no shadow. On hover: slight lift (-translate-y-1) and shadow-lg.",
+    "dashboard_panels": "Sharp edges or max 8px border-radius (rounded-lg). Avoid heavy card looks; use border-collapse styles or subtle separators."
+  },
+  "component_usage_rules": {
+    "base": "Use Shadcn/UI for all interactive logic (Forms, Dialogs, Selects, Dropdowns) customized with Tailwind to match the luxury aesthetic.",
+    "forms": "Never use native <input> or <select>. Use Shadcn Input, Select, Checkbox.",
+    "charts": "Use Recharts or Shadcn Charts. Minimalist tooltips, remove excessive grid lines.",
+    "tables": "Shadcn Table. Flat design, hover states on rows. No alternating row colors, use subtle bottom borders instead.",
+    "icons": "Use lucide-react (already installed).",
+    "toasts": "Use sonner. Render toaster at the root level.",
+    "dropdowns": "No transparent backgrounds. Must have a solid bg-white or bg-slate-900 with clear borders.",
+    "files_extension": "All React components must be .jsx. Avoid .tsx extensions."
+  },
+  "motion_and_interactions": {
+    "hover_states": "All buttons/links must have explicit hover colors (e.g., hover:bg-slate-900 hover:text-white). Do not rely on inheritance.",
+    "transitions": "Use specific properties (transition-transform duration-300 ease-out). Never use 'transition-all'.",
+    "animations": "Subtle fade-in and slide-up for property cards. Staggered entrances for dashboard lists."
+  },
+  "image_urls": {
+    "hero_and_featured_properties": [
+      {
+        "url": "https://images.unsplash.com/photo-1613490493576-7fde63acd811?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2OTV8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjBsdXh1cnklMjBob3VzZSUyMGV4dGVyaW9yfGVufDB8fHx8MTc4NDcwMzcyM3ww&ixlib=rb-4.1.0&q=85",
+        "description": "White and brown concrete modern house exterior",
+        "category": "Hero Background / Featured Property"
+      },
+      {
+        "url": "https://images.pexels.com/photos/7031406/pexels-photo-7031406.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "description": "Luxurious cottage house exterior in evening light",
+        "category": "Featured Property"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1706808849780-7a04fbac83ef?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2OTV8MHwxfHNlYXJjaHwyfHxtb2Rlcm4lMjBsdXh1cnklMjBob3VzZSUyMGV4dGVyaW9yfGVufDB8fHx8MTc4NDcwMzcyM3ww&ixlib=rb-4.1.0&q=85",
+        "description": "Modern house with a pool",
+        "category": "Property Detail Gallery"
+      }
+    ],
+    "interiors": [
+      {
+        "url": "https://images.pexels.com/photos/6585598/pexels-photo-6585598.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "description": "Interior of modern living room with big sofa",
+        "category": "Property Detail Gallery"
+      },
+      {
+        "url": "https://images.pexels.com/photos/7587828/pexels-photo-7587828.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "description": "Modern living room featuring brick walls and teal sofa",
+        "category": "Property Detail Gallery"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1688646953306-5ec93eab8c06?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NjZ8MHwxfHNlYXJjaHw0fHxtb2Rlcm4lMjBhcGFydG1lbnQlMjBpbnRlcmlvciUyMGxpdmluZyUyMHJvb218ZW58MHx8fHwxNzg0NzAzNzIzfDA&ixlib=rb-4.1.0&q=85",
+        "description": "Living room filled with furniture and a large window",
+        "category": "Property Detail Gallery"
+      }
+    ],
+    "testimonials_and_users": [
+      {
+        "url": "https://images.pexels.com/photos/7562179/pexels-photo-7562179.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "description": "Happy African American man smiling",
+        "category": "Testimonials / Owner Profile"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1562337404-3044c84ac061?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1ODR8MHwxfHNlYXJjaHwzfHxoYXBweSUyMHBlcnNvbiUyMHBvcnRyYWl0fGVufDB8fHx8MTc4NDcwMzcyM3ww&ixlib=rb-4.1.0&q=85",
+        "description": "Smiling woman portrait",
+        "category": "Testimonials / User Dashboard Avatar"
+      }
+    ]
+  },
+  "testing_attributes": {
+    "rule": "All interactive and key informational elements MUST include a data-testid attribute.",
+    "convention": "kebab-case, role-based",
+    "examples": ["data-testid='login-submit-btn'", "data-testid='property-card-book-btn'", "data-testid='filter-location-select'"]
+  },
+  "instructions_to_main_agent": [
+    "Prioritize using pre-existing components from /src/components/ui/ (alert, button, card, dialog, input, etc.). All components are in .jsx.",
+    "Create pages as .jsx components. Do not use TypeScript (.tsx).",
+    "The application acts as both a high-end marketing site and a data-dense property management dashboard. Apply wide, asymmetrical layouts for the marketing pages and tight bento grids for the dashboard views.",
+    "Ensure the hero section overlay is subtle (bg-black/30 or gradient) so the background property image remains clearly visible.",
+    "Do NOT use pure #000000. Use Tailwind's slate-900 or the defined primary color #0B132B.",
+    "Integrate lucide-react for all iconography.",
+    "Do not use generic Bootstrap layouts. Rely heavily on Tailwind CSS for grid-cols and responsive behaviors.",
+    "Apply Playfair Display font to all major headings and Manrope to all UI data, labels, and forms. Import these via index.css.",
+    "Ensure contrast requirements are met (APCA/WCAG AA). Avoid gray text on gray backgrounds.",
+    "Add transition effects to property cards, buttons, and dialogs. Use explicit transform scales and opacity changes instead of 'all'."
+  ],
+  "universal_guidelines_for_main_agent": [
+    "You tend to converge toward generic, 'on distribution' outputs. Avoid this: make creative, distinctive frontends that surprise and delight.",
+    "Don't make generic centered layouts, simplistic gradients, and uniform styling.",
+    "Create depth through layered design elements with z-index hierarchy and glassmorphism.",
+    "You MUST NOT apply universal transition. Eg: transition: all. Always add transitions for specific interactive elements excluding transforms.",
+    "You MUST NOT center align the app container, ie do not add .App { text-align: center; }.",
+    "NEVER use AI assistant Emoji characters like 🤖🧠💭💡🔮🎯 etc for icons.",
+    "Use 2-3x more spacing than feels comfortable. Cramped designs look cheap.",
+    "NEVER use placeholder URLs. Always use the provided image URLs.",
+    "Use sonner for toast notifications."
+  ]
+}
