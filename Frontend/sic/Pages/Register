@@ -1,0 +1,82 @@
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
+import { formatApiError } from "@/lib/api";
+
+export default function Register() {
+  const { register } = useAuth();
+  const [form, setForm] = useState({ name: "", email: "", password: "", phone: "" });
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  const change = (k) => (e) => setForm({ ...form, [k]: e.target.value });
+
+  const submit = async (e) => {
+    e.preventDefault();
+    if (form.password.length < 6) return toast.error("Password must be at least 6 characters");
+    setLoading(true);
+    try {
+      await register(form);
+      toast.success("Account created — welcome!");
+      navigate("/dashboard");
+    } catch (err) {
+      toast.error(formatApiError(err));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="mx-auto max-w-7xl px-6 lg:px-10 py-16 grid md:grid-cols-2 gap-12 items-center min-h-[70vh]">
+      <div className="max-w-md w-full mx-auto rn-fade-up">
+        <div className="rn-label">Get started</div>
+        <h2 className="font-display text-3xl mt-1">Create your RentNest account</h2>
+        <form onSubmit={submit} className="mt-8 space-y-5" data-testid="register-form">
+          <div>
+            <Label htmlFor="rname">Full name</Label>
+            <Input id="rname" data-testid="register-name" required value={form.name} onChange={change("name")}
+              className="mt-1" placeholder="Jane Cooper" />
+          </div>
+          <div>
+            <Label htmlFor="remail">Email</Label>
+            <Input id="remail" data-testid="register-email" type="email" required value={form.email} onChange={change("email")}
+              className="mt-1" placeholder="you@example.com" />
+          </div>
+          <div>
+            <Label htmlFor="rphone">Phone</Label>
+            <Input id="rphone" data-testid="register-phone" value={form.phone} onChange={change("phone")}
+              className="mt-1" placeholder="+91 98765 43210" />
+          </div>
+          <div>
+            <Label htmlFor="rpassword">Password</Label>
+            <Input id="rpassword" data-testid="register-password" type="password" required value={form.password}
+              onChange={change("password")} className="mt-1" placeholder="Min 6 characters" />
+          </div>
+          <Button type="submit" disabled={loading} className="w-full rn-btn-primary h-11" data-testid="register-submit-btn">
+            {loading ? "Creating..." : "Create account"}
+          </Button>
+          <p className="text-sm text-slate-600 text-center">
+            Already registered?{" "}
+            <Link to="/login" className="text-[#065A4A] font-medium hover:underline">Log in</Link>
+          </p>
+        </form>
+      </div>
+      <div className="hidden md:block rn-fade-in">
+        <div className="rn-label">Join RentNest</div>
+        <h1 className="font-display text-5xl lg:text-6xl tracking-tighter mt-2">Rent, list, and manage — beautifully.</h1>
+        <p className="mt-4 text-slate-600 max-w-md leading-relaxed">
+          Publish your own properties, track bookings and enquiries, and browse a growing collection of distinctive homes.
+        </p>
+        <img
+          src="https://images.pexels.com/photos/7587828/pexels-photo-7587828.jpeg?w=1000"
+          alt="Interior"
+          className="mt-10 rounded-lg object-cover w-full aspect-[4/3]"
+        />
+      </div>
+    </div>
+  );
+}
