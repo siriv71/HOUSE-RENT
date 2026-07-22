@@ -1,0 +1,191 @@
+import { useEffect, useState } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import api, { formatApiError } from "@/lib/api";
+import { useAuth } from "@/context/AuthContext";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { toast } from "sonner";
+import { MapPin, Bed, Bath, Square, Phone, Mail, CheckCircle2, User } from "lucide-react";
+
+export default function PropertyDetails() {
+  const { id } = useParams();
+  const [p, setP] = useState(null);
+  const [imgIdx, setImgIdx] = useState(0);
+  const [bookingDate, setBookingDate] = useState("");
+  const [message, setMessage] = useState("");
+  const [open, setOpen] = useState(false);
+  const [booking, setBooking] = useState(false);
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    api.get(`/properties/${id}`).then(r => { setP(r.data); setImgIdx(0); }).catch(() => setP(false));
+  }, [id]);
+
+  if (p === false) return <div className="p-24 text-center">Property not found.</div>;
+  if (!p) return <div className="p-24 text-center">Loading...</div>;
+
+  const price = new Intl.NumberFormat("en-IN").format(p.price);
+  const images = p.images?.length ? p.images : ["https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=85&w=1600"];
+
+  const book = async () => {
+    if (!user) { toast.error("Please log in to book"); return navigate("/login"); }
+    if (!bookingDate) return toast.error("Select a booking date");
+    setBooking(true);
+    try {
+      await api.post("/bookings", { propertyId: p.id, bookingDate, message });
+      toast.success("Booking request sent! Track it in your dashboard.");
+      setOpen(false);
+      setBookingDate("");
+      setMessage("");
+    } catch (e) {
+      toast.error(formatApiError(e));
+    } finally {
+      setBooking(false);
+    }
+  };
+
+  return (
+    <div className="mx-auto max-w-7xl px-6 lg:px-10 py-12 rn-fade-in" data-testid={`property-detail-${p.id}`}>
+      {/* GALLERY */}
+      <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-3">
+        <div className="aspect-[16/10] overflow-hidden rounded-lg border border-slate-200 bg-white">
+          <img src={images[imgIdx]} alt={p.title} className="w-full h-full object-cover" />
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          {images.slice(0, 4).map((src, i) => (
+            <button key={i} onClick={() => setImgIdx(i)} data-testid={`gallery-thumb-${i}`}
+              className={`aspect-[4/3] overflow-hidden rounded-lg border ${i === imgIdx ? "border-[#065A4A] ring-2 ring-[#065A4A]" : "border-slate-200"}`}>
+              <img src={src} alt="" className="w-full h-full object-cover" />
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-10 grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-10">
+        <div>
+          <div className="rn-label">{p.propertyType} · {p.furnishing}</div>
+          <h1 className="font-display text-4xl lg:text-5xl tracking-tighter mt-2">{p.title}</h1>
+          <div className="flex items-center gap-1 text-slate-600 mt-2">
+            <MapPin className="h-4 w-4" /> {p.address || `${p.location}, ${p.city}, ${p.state}`}
+          </div>
+
+          <div className="mt-8 grid grid-cols-3 gap-4">
+            <div className="border border-slate-200 rounded-lg p-4 bg-white">
+              <Bed className="h-5 w-5 text-[#065A4A]" />
+              <div className="font-display text-2xl mt-2">{p.bedrooms}</div>
+              <div className="rn-label">Bedrooms</div>
+            </div>
+            <div className="border border-slate-200 rounded-lg p-4 bg-white">
+              <Bath className="h-5 w-5 text-[#065A4A]" />
+              <div className="font-display text-2xl mt-2">{p.bathrooms}</div>
+              <div className="rn-label">Bathrooms</div>
+            </div>
+            <div className="border border-slate-200 rounded-lg p-4 bg-white">
+              <Square className="h-5 w-5 text-[#065A4A]" />
+              <div className="font-display text-2xl mt-2">{p.area}</div>
+              <div className="rn-label">Sq. Feet</div>
+            </div>
+          </div>
+
+          <section className="mt-10">
+            <h2 className="font-display text-2xl">About this home</h2>
+            <p className="mt-3 text-slate-700 leading-relaxed">{p.description}</p>
+          </section>
+
+          {p.amenities?.length > 0 && (
+            <section className="mt-10">
+              <h2 className="font-display text-2xl">Amenities</h2>
+              <ul className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-3">
+                {p.amenities.map((a) => (
+                  <li key={a} className="flex items-center gap-2 text-sm text-slate-700">
+                    <CheckCircle2 className="h-4 w-4 text-[#065A4A]" /> {a}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
+          <section className="mt-10">
+            <h2 className="font-display text-2xl">Location</h2>
+            <div className="mt-4 rounded-lg border border-slate-200 overflow-hidden bg-slate-50">
+              <iframe
+                title="map"
+                width="100%"
+                height="320"
+                loading="lazy"
+                style={{ border: 0 }}
+                src={`https://maps.google.com/maps?q=${encodeURIComponent(p.address || `${p.location}, ${p.city}`)}&t=&z=13&ie=UTF8&iwloc=&output=embed`}
+              />
+            </div>
+          </section>
+        </div>
+
+        <aside className="lg:sticky lg:top-24 h-fit space-y-4">
+          <div className="bg-white border border-slate-200 rounded-lg p-6" data-testid="booking-panel">
+            <div className="rn-label">Monthly Rent</div>
+            <div className="font-display text-4xl text-[#065A4A]">₹{price}</div>
+
+            <Dialog open={open} onOpenChange={setOpen}>
+              <DialogTrigger asChild>
+                <Button className="mt-4 w-full rn-btn-emerald h-11" disabled={!p.availability} data-testid="book-property-btn">
+                  {p.availability ? "Book this property" : "Currently unavailable"}
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="bg-white">
+                <DialogHeader>
+                  <DialogTitle className="font-display text-2xl">Book {p.title}</DialogTitle>
+                  <DialogDescription>Owner will review your request and reach out.</DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="bdate">Preferred move-in date</Label>
+                    <Input id="bdate" type="date" value={bookingDate} onChange={(e) => setBookingDate(e.target.value)} data-testid="booking-date-input" />
+                  </div>
+                  <div>
+                    <Label htmlFor="bmsg">Message (optional)</Label>
+                    <Textarea id="bmsg" value={message} onChange={(e) => setMessage(e.target.value)}
+                      placeholder="Tell the owner about yourself..." data-testid="booking-message-input" />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+                  <Button className="rn-btn-emerald" onClick={book} disabled={booking} data-testid="confirm-booking-btn">
+                    {booking ? "Sending..." : "Send booking request"}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+
+            <Button variant="outline" className="mt-2 w-full h-11" onClick={() => window.location.href = `mailto:${p.owner?.email}`} data-testid="contact-owner-btn">
+              <Mail className="h-4 w-4 mr-2" /> Contact Owner
+            </Button>
+          </div>
+
+          <div className="bg-white border border-slate-200 rounded-lg p-6">
+            <div className="rn-label">Listed by</div>
+            <div className="mt-3 flex items-center gap-3">
+              <div className="h-11 w-11 rounded-full bg-[#0B132B] text-white grid place-items-center">
+                <User className="h-5 w-5" />
+              </div>
+              <div>
+                <div className="font-medium">{p.owner?.name}</div>
+                <div className="text-xs text-slate-500">{p.owner?.email}</div>
+              </div>
+            </div>
+            {p.owner?.phone && (
+              <div className="mt-4 flex items-center gap-2 text-sm text-slate-700">
+                <Phone className="h-4 w-4" /> {p.owner.phone}
+              </div>
+            )}
+          </div>
+
+          <Link to="/properties" className="block text-sm text-[#065A4A] hover:underline">← Back to all properties</Link>
+        </aside>
+      </div>
+    </div>
+  );
+}
