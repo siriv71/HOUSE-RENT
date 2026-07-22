@@ -1,0 +1,18 @@
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import api from "@/lib/api";
+import { PropertyForm } from "@/pages/AddProperty";
+
+export default function EditProperty() {
+  const { id } = useParams();
+  const [data, setData] = useState(null);
+  useEffect(() => { api.get(`/properties/${id}`).then(r => setData(r.data)); }, [id]);
+  if (!data) return <div className="p-24 text-center">Loading...</div>;
+  return (
+    <div className="mx-auto max-w-7xl px-6 lg:px-10 py-12 rn-fade-in">
+      <div className="rn-label">Edit listing</div>
+      <h1 className="font-display text-4xl tracking-tighter mt-1 mb-8">{data.title}</h1>
+      <PropertyForm initial={data} mode="edit" />
+    </div>
+  );
+}
