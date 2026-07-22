@@ -1,0 +1,170 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import api, { formatApiError } from "@/lib/api";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { toast } from "sonner";
+import { X, Plus } from "lucide-react";
+
+const AMENITY_OPTIONS = ["Pool", "Gym", "Parking", "Garden", "Security", "Elevator", "Balcony", "Wifi", "AC", "Fireplace"];
+
+export function PropertyForm({ initial, mode = "create" }) {
+  const [form, setForm] = useState({
+    title: "", description: "", location: "", city: "", state: "",
+    price: "", propertyType: "Apartment", bedrooms: 1, bathrooms: 1, area: "",
+    furnishing: "Unfurnished", images: [""], amenities: [], availability: true,
+    address: "",
+    ...(initial || {}),
+  });
+  const [imgUrl, setImgUrl] = useState("");
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  const set = (k, v) => setForm({ ...form, [k]: v });
+
+  const addImage = () => {
+    if (!imgUrl.trim()) return;
+    set("images", [...(form.images || []), imgUrl.trim()]);
+    setImgUrl("");
+  };
+  const removeImage = (i) => set("images", form.images.filter((_, idx) => idx !== i));
+
+  const toggleAmenity = (a) => {
+    const has = form.amenities.includes(a);
+    set("amenities", has ? form.amenities.filter(x => x !== a) : [...form.amenities, a]);
+  };
+
+  const submit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const payload = {
+        ...form,
+        price: Number(form.price),
+        bedrooms: Number(form.bedrooms),
+        bathrooms: Number(form.bathrooms),
+        area: Number(form.area),
+        images: (form.images || []).filter(Boolean),
+      };
+      if (mode === "create") {
+        const { data } = await api.post("/properties", payload);
+        toast.success("Property submitted for review!");
+        navigate(`/properties/${data.id}`);
+      } else {
+        await api.put(`/properties/${initial.id}`, payload);
+        toast.success("Property updated!");
+        navigate("/dashboard");
+      }
+    } catch (e) {
+      toast.error(formatApiError(e));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <form onSubmit={submit} className="max-w-3xl bg-white border border-slate-200 rounded-lg p-8 space-y-6" data-testid="property-form">
+      <div>
+        <Label>Title</Label>
+        <Input required value={form.title} onChange={(e) => set("title", e.target.value)} data-testid="pf-title" />
+      </div>
+      <div>
+        <Label>Description</Label>
+        <Textarea rows={4} required value={form.description} onChange={(e) => set("description", e.target.value)} data-testid="pf-description" />
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div><Label>Location / Area</Label><Input required value={form.location} onChange={(e) => set("location", e.target.value)} data-testid="pf-location" /></div>
+        <div><Label>City</Label><Input required value={form.city} onChange={(e) => set("city", e.target.value)} data-testid="pf-city" /></div>
+        <div><Label>State</Label><Input required value={form.state} onChange={(e) => set("state", e.target.value)} data-testid="pf-state" /></div>
+      </div>
+      <div>
+        <Label>Full Address</Label>
+        <Input value={form.address} onChange={(e) => set("address", e.target.value)} placeholder="Street, area, city, pincode" data-testid="pf-address" />
+      </div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div><Label>Monthly Rent (₹)</Label><Input required type="number" value={form.price} onChange={(e) => set("price", e.target.value)} data-testid="pf-price" /></div>
+        <div><Label>Area (sqft)</Label><Input required type="number" value={form.area} onChange={(e) => set("area", e.target.value)} data-testid="pf-area" /></div>
+        <div><Label>Bedrooms</Label><Input required type="number" min={0} value={form.bedrooms} onChange={(e) => set("bedrooms", e.target.value)} data-testid="pf-bedrooms" /></div>
+        <div><Label>Bathrooms</Label><Input required type="number" min={0} value={form.bathrooms} onChange={(e) => set("bathrooms", e.target.value)} data-testid="pf-bathrooms" /></div>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <Label>Type</Label>
+          <Select value={form.propertyType} onValueChange={(v) => set("propertyType", v)}>
+            <SelectTrigger data-testid="pf-type"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Apartment">Apartment</SelectItem>
+              <SelectItem value="Villa">Villa</SelectItem>
+              <SelectItem value="House">House</SelectItem>
+              <SelectItem value="Studio">Studio</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label>Furnishing</Label>
+          <Select value={form.furnishing} onValueChange={(v) => set("furnishing", v)}>
+            <SelectTrigger data-testid="pf-furnishing"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Furnished">Furnished</SelectItem>
+              <SelectItem value="Semi-Furnished">Semi-Furnished</SelectItem>
+              <SelectItem value="Unfurnished">Unfurnished</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+      <div>
+        <Label>Amenities</Label>
+        <div className="flex flex-wrap gap-2 mt-2">
+          {AMENITY_OPTIONS.map(a => (
+            <button type="button" key={a} onClick={() => toggleAmenity(a)}
+              className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${form.amenities.includes(a) ? "bg-[#0B132B] text-white border-[#0B132B]" : "bg-white border-slate-300 hover:border-slate-500"}`}
+              data-testid={`pf-amenity-${a.toLowerCase()}`}>
+              {a}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div>
+        <Label>Images (paste URLs)</Label>
+        <div className="flex gap-2 mt-1">
+          <Input value={imgUrl} onChange={(e) => setImgUrl(e.target.value)} placeholder="https://..." data-testid="pf-image-url" />
+          <Button type="button" onClick={addImage} data-testid="pf-add-image"><Plus className="h-4 w-4" /></Button>
+        </div>
+        <div className="grid grid-cols-3 md:grid-cols-4 gap-2 mt-3">
+          {form.images?.filter(Boolean).map((src, i) => (
+            <div key={i} className="relative aspect-square rounded-md overflow-hidden border border-slate-200">
+              <img src={src} alt="" className="w-full h-full object-cover" />
+              <button type="button" onClick={() => removeImage(i)} className="absolute top-1 right-1 h-6 w-6 rounded-full bg-white/90 grid place-items-center">
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="flex items-center justify-between border-t border-slate-100 pt-4">
+        <div>
+          <Label>Available for rent</Label>
+          <div className="text-xs text-slate-500">Toggle off to mark as unavailable</div>
+        </div>
+        <Switch checked={form.availability} onCheckedChange={(v) => set("availability", v)} data-testid="pf-availability" />
+      </div>
+      <Button type="submit" className="rn-btn-primary w-full h-11" disabled={loading} data-testid="pf-submit">
+        {loading ? "Saving..." : mode === "create" ? "Submit for review" : "Update property"}
+      </Button>
+    </form>
+  );
+}
+
+export default function AddProperty() {
+  return (
+    <div className="mx-auto max-w-7xl px-6 lg:px-10 py-12 rn-fade-in">
+      <div className="rn-label">New listing</div>
+      <h1 className="font-display text-4xl tracking-tighter mt-1 mb-8">List a property</h1>
+      <PropertyForm />
+    </div>
+  );
+}
